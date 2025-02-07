@@ -28,6 +28,83 @@ export interface Chat {
 export const chatsData: Chat[] = [
   {
     id: 1,
+    name: "1138008472",
+    phoneNumber: "1138008472",
+    lastMessage: "Hola, ¿cómo estás?",
+    time: "Just now",
+    unread: 1,
+    avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    online: false,
+    messages: [
+      {
+        id: 1,
+        content: "Hola, ¿cómo estás?",
+        time: "Just now",
+        sent: false
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: "1145678901",
+    phoneNumber: "1145678901",
+    lastMessage: "📷 Photo",
+    time: "5 minutes ago",
+    unread: 0,
+    avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    online: false,
+    messages: [
+      {
+        id: 1,
+        content: "Mira esto",
+        time: "5 minutes ago",
+        sent: false
+      },
+      {
+        id: 2,
+        content: "",
+        time: "5 minutes ago",
+        sent: false,
+        preview: {
+          type: 'image',
+          name: 'photo.jpg',
+          url: 'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+        }
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: "1156789012",
+    phoneNumber: "1156789012",
+    lastMessage: "📄 Presupuesto.pdf",
+    time: "30 minutes ago",
+    unread: 2,
+    avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    online: false,
+    messages: [
+      {
+        id: 1,
+        content: "Te envío el presupuesto",
+        time: "30 minutes ago",
+        sent: false
+      },
+      {
+        id: 2,
+        content: "",
+        time: "30 minutes ago",
+        sent: false,
+        preview: {
+          type: 'document',
+          name: 'Presupuesto.pdf',
+          url: '#',
+          size: '2.8 MB'
+        }
+      }
+    ]
+  },
+  {
+    id: 4,
     name: "John Doe",
     phoneNumber: "+1 (555) 123-4567",
     lastMessage: "📷 Photo",
@@ -64,7 +141,54 @@ export const chatsData: Chat[] = [
     ]
   },
   {
-    id: 2,
+    id: 5,
+    name: "1167890123",
+    phoneNumber: "1167890123",
+    lastMessage: "Necesito información",
+    time: "1 hour ago",
+    unread: 0,
+    avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    online: false,
+    messages: [
+      {
+        id: 1,
+        content: "Necesito información",
+        time: "1 hour ago",
+        sent: false
+      }
+    ]
+  },
+  {
+    id: 6,
+    name: "1178901234",
+    phoneNumber: "1178901234",
+    lastMessage: "📷 Photo",
+    time: "2 hours ago",
+    unread: 0,
+    avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    online: false,
+    messages: [
+      {
+        id: 1,
+        content: "¿Qué te parece?",
+        time: "2 hours ago",
+        sent: false
+      },
+      {
+        id: 2,
+        content: "",
+        time: "2 hours ago",
+        sent: false,
+        preview: {
+          type: 'image',
+          name: 'product.jpg',
+          url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+        }
+      }
+    ]
+  },
+  {
+    id: 7,
     name: "Alice Smith",
     phoneNumber: "+1 (555) 987-6543",
     lastMessage: "📄 Q4 Report.pdf",
@@ -102,7 +226,37 @@ export const chatsData: Chat[] = [
     ]
   },
   {
-    id: 3,
+    id: 8,
+    name: "1189012345",
+    phoneNumber: "1189012345",
+    lastMessage: "📄 Factura.pdf",
+    time: "Yesterday",
+    unread: 0,
+    avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    online: false,
+    messages: [
+      {
+        id: 1,
+        content: "Aquí está la factura",
+        time: "Yesterday",
+        sent: false
+      },
+      {
+        id: 2,
+        content: "",
+        time: "Yesterday",
+        sent: false,
+        preview: {
+          type: 'document',
+          name: 'Factura.pdf',
+          url: '#',
+          size: '1.2 MB'
+        }
+      }
+    ]
+  },
+  {
+    id: 9,
     name: "Sarah Johnson",
     phoneNumber: "+1 (555) 246-8135",
     lastMessage: "📷 Photo",
@@ -132,7 +286,7 @@ export const chatsData: Chat[] = [
     ]
   },
   {
-    id: 4,
+    id: 10,
     name: "David Wilson",
     phoneNumber: "+1 (555) 369-1478",
     lastMessage: "📄 Project Proposal.docx",
@@ -165,7 +319,7 @@ export const chatsData: Chat[] = [
     ]
   },
   {
-    id: 5,
+    id: 11,
     name: "Emma Thompson",
     phoneNumber: "+1 (555) 789-0123",
     lastMessage: "Great shots from the event! 📸",
@@ -206,7 +360,7 @@ export const chatsData: Chat[] = [
     ]
   },
   {
-    id: 6,
+    id: 12,
     name: "Michael Chen",
     phoneNumber: "+1 (555) 456-7890",
     lastMessage: "📄 Meeting Minutes.pdf",
@@ -237,7 +391,7 @@ export const chatsData: Chat[] = [
     ]
   },
   {
-    id: 7,
+    id: 13,
     name: "Sophie Martinez",
     phoneNumber: "+1 (555) 234-5678",
     lastMessage: "Check out my new artwork! 🎨",
@@ -267,7 +421,7 @@ export const chatsData: Chat[] = [
     ]
   },
   {
-    id: 8,
+    id: 14,
     name: "Robert Taylor",
     phoneNumber: "+1 (555) 345-6789",
     lastMessage: "📄 Contract Draft.pdf",
@@ -300,7 +454,7 @@ export const chatsData: Chat[] = [
     ]
   },
   {
-    id: 9,
+    id: 15,
     name: "Isabella Garcia",
     phoneNumber: "+1 (555) 567-8901",
     lastMessage: "📷 Photo",
@@ -325,37 +479,6 @@ export const chatsData: Chat[] = [
           type: 'image',
           name: 'paris.jpg',
           url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
-        }
-      }
-    ]
-  },
-  {
-    id: 10,
-    name: "William Anderson",
-    phoneNumber: "+1 (555) 678-9012",
-    lastMessage: "📄 Research Paper.pdf",
-    time: "Last Week",
-    unread: 0,
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    online: false,
-    about: "PhD Student 📚",
-    messages: [
-      {
-        id: 1,
-        content: "Here's my latest research paper",
-        time: "Last Week",
-        sent: false
-      },
-      {
-        id: 2,
-        content: "",
-        time: "Last Week",
-        sent: false,
-        preview: {
-          type: 'document',
-          name: 'Research Paper.pdf',
-          url: '#',
-          size: '4.7 MB'
         }
       }
     ]
