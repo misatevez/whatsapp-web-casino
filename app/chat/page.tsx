@@ -1,8 +1,10 @@
 "use client";
 
-import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -30,8 +32,6 @@ import {
   Share2
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
 import { chatsData } from "@/lib/data";
 import EmojiPicker from 'emoji-picker-react';
 
@@ -64,13 +64,14 @@ export default function ChatPage() {
   const [showMessageSearch, setShowMessageSearch] = useState(false);
   const [messageSearchTerm, setMessageSearchTerm] = useState("");
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile>(DEFAULT_PROFILE);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const chat = chatsData[0];
-  const [showImageViewer, setShowImageViewer] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [imageScale, setImageScale] = useState(1);
-  const [rotation, setRotation] = useState(0);
+  const [userProfile, setUserProfile] = useState<UserProfile>(DEFAULT_PROFILE);
+  const [adminData] = useState(() => ({
+    name: "WhatsApp Support",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg",
+    about: "Official WhatsApp Support",
+    online: true
+  }));
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -113,43 +114,14 @@ export default function ChatPage() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [chat.messages.length]);
-
-  useEffect(() => {
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      setUserProfile(JSON.parse(savedProfile));
-    }
-  }, []);
-
-  const saveProfile = (newProfile: UserProfile) => {
-    setUserProfile(newProfile);
-    localStorage.setItem('userProfile', JSON.stringify(newProfile));
-  };
-
-  const filteredMessages = chat.messages.filter(message =>
-    message.content?.toLowerCase().includes(messageSearchTerm.toLowerCase())
-  );
-
-  const navigateSearchResults = (direction: 'up' | 'down') => {
-    if (filteredMessages.length === 0) return;
-    
-    if (selectedMessageIndex === null) {
-      setSelectedMessageIndex(direction === 'up' ? filteredMessages.length - 1 : 0);
-    } else {
-      const newIndex = direction === 'up' 
-        ? Math.max(0, selectedMessageIndex - 1)
-        : Math.min(filteredMessages.length - 1, selectedMessageIndex + 1);
-      setSelectedMessageIndex(newIndex);
-    }
-  };
+  }, [chatsData[0].messages.length]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!newMessage.trim() && !messagePreview) || !chat) return;
+    if ((!newMessage.trim() && !messagePreview) || !chatsData[0]) return;
 
     const newMsg = {
-      id: chat.messages.length + 1,
+      id: chatsData[0].messages.length + 1,
       content: messagePreview ? '' : newMessage,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       sent: true,
@@ -157,11 +129,11 @@ export default function ChatPage() {
       preview: messagePreview
     };
 
-    chat.messages.push(newMsg);
-    chat.lastMessage = messagePreview ? 
+    chatsData[0].messages.push(newMsg);
+    chatsData[0].lastMessage = messagePreview ? 
       messagePreview.type === 'image' ? '📷 Photo' : `📄 ${messagePreview.name}` :
       newMessage;
-    chat.time = newMsg.time;
+    chatsData[0].time = newMsg.time;
     setNewMessage("");
     setMessagePreview(null);
   };
@@ -190,27 +162,8 @@ export default function ChatPage() {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      saveProfile({ ...userProfile, image: url });
+      setUserProfile(prev => ({ ...prev, image: url }));
     }
-  };
-
-  const handleImageClick = (url: string) => {
-    setSelectedImage(url);
-    setShowImageViewer(true);
-    setImageScale(1);
-    setRotation(0);
-  };
-
-  const handleZoomIn = () => {
-    setImageScale(prev => Math.min(prev + 0.5, 3));
-  };
-
-  const handleZoomOut = () => {
-    setImageScale(prev => Math.max(prev - 0.5, 0.5));
-  };
-
-  const handleRotate = () => {
-    setRotation(prev => (prev + 90) % 360);
   };
 
   return (
@@ -221,8 +174,8 @@ export default function ChatPage() {
           onClick={() => setShowContactInfo(true)}
         >
           <Image
-            src={chat.avatar}
-            alt={chat.name}
+            src={adminData.avatar}
+            alt={adminData.name}
             width={40}
             height={40}
             className="rounded-full"
@@ -232,9 +185,9 @@ export default function ChatPage() {
           className="flex-1 cursor-pointer min-w-0" 
           onClick={() => setShowContactInfo(true)}
         >
-          <div className="text-[#e9edef] font-medium truncate">{chat.name}</div>
+          <div className="text-[#e9edef] font-medium truncate">{adminData.name}</div>
           <div className="text-xs sm:text-sm text-[#8696a0]">
-            {chat.online ? "online" : "offline"}
+            {adminData.online ? "online" : "offline"}
           </div>
         </div>
         <div className="flex gap-1 sm:gap-4">
@@ -246,29 +199,9 @@ export default function ChatPage() {
           >
             <Search className="h-5 w-5 text-[#aebac1]" />
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5 text-[#aebac1]" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-[#2a3942] text-[#e9edef] border-[#202c33]">
-              <DropdownMenuItem 
-                className="hover:bg-[#202c33] cursor-pointer sm:hidden"
-                onClick={() => setShowMessageSearch(true)}
-              >
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="hover:bg-[#202c33] cursor-pointer"
-                onClick={() => setShowProfileSettings(true)}
-              >
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button variant="ghost" size="icon" onClick={() => setShowProfileSettings(true)}>
+            <MoreVertical className="h-5 w-5 text-[#aebac1]" />
+          </Button>
         </div>
       </div>
 
@@ -278,7 +211,7 @@ export default function ChatPage() {
       >
         <div className="whatsapp-chat-bg" />
         <div className="space-y-2 sm:space-y-4 max-w-3xl mx-auto relative">
-          {chat.messages.map((message) => (
+          {chatsData[0].messages.map((message) => (
             <div
               key={message.id}
               className={`flex ${
@@ -293,18 +226,13 @@ export default function ChatPage() {
                 {message.preview ? (
                   message.preview.type === 'image' ? (
                     <div className="space-y-2">
-                      <div 
-                        className="cursor-pointer"
-                        onClick={() => handleImageClick(message.preview!.url)}
-                      >
-                        <Image
-                          src={message.preview.url}
-                          alt="Preview"
-                          width={300}
-                          height={200}
-                          className="rounded-lg w-full h-auto"
-                        />
-                      </div>
+                      <Image
+                        src={message.preview.url}
+                        alt="Preview"
+                        width={300}
+                        height={200}
+                        className="rounded-lg w-full h-auto"
+                      />
                       {message.content && (
                         <p className="text-[#e9edef] mt-2 text-sm sm:text-base">{message.content}</p>
                       )}
@@ -434,20 +362,20 @@ export default function ChatPage() {
           <DialogHeader>
             <DialogTitle>Profile Settings</DialogTitle>
           </DialogHeader>
-          <div className="space-y-6">
+          <div className="flex flex-col gap-6">
             <div className="flex flex-col items-center gap-4">
               <div className="relative">
                 <Avatar className="h-24 w-24 sm:h-32 sm:w-32">
                   <Image
                     src={userProfile.image}
-                    alt="Profile"
+                    alt={userProfile.name}
                     width={128}
                     height={128}
                     className="rounded-full"
                   />
                 </Avatar>
                 <label className="absolute bottom-0 right-0 bg-[#00a884] p-2 rounded-full cursor-pointer">
-                  <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  <Camera className="h-5 w-5 text-white" />
                   <input
                     type="file"
                     accept="image/*"
@@ -457,42 +385,39 @@ export default function ChatPage() {
                 </label>
               </div>
             </div>
+
             <div>
-              <label className="text-xs sm:text-sm text-[#8696a0]">Your Name</label>
+              <label className="text-sm text-[#8696a0]">Your Name</label>
               <div className="flex gap-2">
                 <Input
                   value={userProfile.name}
-                  onChange={(e) => saveProfile({ ...userProfile, name: e.target.value })}
-                  className="bg-[#2a3942] border-none text-[#d1d7db] text-sm sm:text-base"
-                  placeholder="Enter your name"
+                  onChange={(e) => setUserProfile(prev => ({ ...prev, name: e.target.value }))}
+                  className="bg-[#2a3942] border-none text-[#d1d7db]"
                 />
                 <Button size="icon" variant="ghost">
                   <Edit className="h-4 w-4 text-[#00a884]" />
                 </Button>
               </div>
             </div>
+
             <div>
-              <label className="text-xs sm:text-sm text-[#8696a0]">About</label>
+              <label className="text-sm text-[#8696a0]">About</label>
               <div className="flex gap-2">
                 <Input
                   value={userProfile.about}
-                  onChange={(e) => saveProfile({ ...userProfile, about: e.target.value })}
-                  className="bg-[#2a3942] border-none text-[#d1d7db] text-sm sm:text-base"
-                  placeholder="Hey there! I am using WhatsApp"
+                  onChange={(e) => setUserProfile(prev => ({ ...prev, about: e.target.value }))}
+                  className="bg-[#2a3942] border-none text-[#d1d7db]"
                 />
                 <Button size="icon" variant="ghost">
                   <Edit className="h-4 w-4 text-[#00a884]" />
                 </Button>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-[#8696a0]">
-              This information will be visible to your WhatsApp contacts.
-            </p>
           </div>
           <DialogFooter>
             <Button
               onClick={() => setShowProfileSettings(false)}
-              className="bg-[#00a884] hover:bg-[#02906f] text-white w-full sm:w-auto"
+              className="bg-[#00a884] hover:bg-[#02906f] text-white"
             >
               Save
             </Button>
@@ -500,99 +425,6 @@ export default function ChatPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Message Search Dialog */}
-      <Dialog open={showMessageSearch} onOpenChange={setShowMessageSearch}>
-        <DialogContent className="bg-[#222e35] text-[#e9edef] border-none max-w-[90vw] sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Search Messages</DialogTitle>
-          </DialogHeader>
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => {
-                setShowMessageSearch(false);
-                setMessageSearchTerm("");
-                setSelectedMessageIndex(null);
-              }}
-            >
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-            <div className="flex-1">
-              <Input
-                placeholder="Search messages"
-                value={messageSearchTerm}
-                onChange={(e) => {
-                  setMessageSearchTerm(e.target.value);
-                  setSelectedMessageIndex(null);
-                }}
-                className="bg-[#2a3942] border-none text-[#d1d7db] placeholder:text-[#8696a0] text-sm sm:text-base"
-              />
-            </div>
-          </div>
-          
-          {messageSearchTerm && (
-            <div className="flex items-center justify-between px-4 py-2 border-b border-[#2a3942]">
-              <span className="text-xs sm:text-sm text-[#8696a0]">
-                {filteredMessages.length} {filteredMessages.length === 1 ? 'message' : 'messages'} found
-              </span>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={filteredMessages.length === 0}
-                  onClick={() => navigateSearchResults('up')}
-                >
-                  <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={filteredMessages.length === 0}
-                  onClick={() => navigateSearchResults('down')}
-                >
-                  <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <ScrollArea className="h-[60vh] sm:h-[400px]">
-            <div className="space-y-4 p-4">
-              {filteredMessages.map((message, index) => (
-                <div
-                  key={message.id}
-                  className={`p-2 sm:p-3 rounded-lg cursor-pointer transition-colors ${
-                    index === selectedMessageIndex
-                      ? 'bg-[#2a3942]'
-                      : 'hover:bg-[#202c33]'
-                  }`}
-                  onClick={() => setSelectedMessageIndex(index)}
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="text-[10px] sm:text-xs text-[#8696a0]">{message.time}</span>
-                    {message.sent && message.status && (
-                      <Check
-                        className={`h-3 w-3 sm:h-4 sm:w-4 ${
-                          message.status === "read" ? "text-[#53bdeb]" : "text-[#8696a0]"
-                        }`}
-                      />
-                    )}
-                  </div>
-                  <p className="text-[#e9edef] text-sm sm:text-base">{message.content}</p>
-                </div>
-              ))}
-              {messageSearchTerm && filteredMessages.length === 0 && (
-                <div className="text-center text-[#8696a0] py-8 text-sm sm:text-base">
-                  No messages found
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
-
-      {/* Contact Info Dialog */}
       <Dialog open={showContactInfo} onOpenChange={setShowContactInfo}>
         <DialogContent className="bg-[#222e35] text-[#e9edef] border-none max-w-[90vw] sm:max-w-md">
           <DialogHeader>
@@ -602,87 +434,22 @@ export default function ChatPage() {
             <div className="flex flex-col items-center gap-4 p-4 bg-[#111b21] rounded-lg">
               <Avatar className="h-24 w-24 sm:h-32 sm:w-32">
                 <Image
-                  src={chat.avatar}
-                  alt={chat.name}
+                  src={adminData.avatar}
+                  alt={adminData.name}
                   width={128}
                   height={128}
                   className="rounded-full"
                 />
               </Avatar>
               <div className="text-center">
-                <h2 className="text-xl sm:text-2xl font-semibold">{chat.name}</h2>
-                <p className="text-sm sm:text-base text-[#8696a0]">{chat.phoneNumber}</p>
+                <h2 className="text-xl sm:text-2xl font-semibold">{adminData.name}</h2>
+                <p className="text-sm sm:text-base text-[#8696a0]">Official Support</p>
               </div>
             </div>
 
             <div className="p-4 bg-[#111b21] rounded-lg">
               <h3 className="text-xs sm:text-sm text-[#8696a0] mb-1">About</h3>
-              <p className="text-sm sm:text-base text-[#e9edef]">{chat.about || "Hey there! I am using WhatsApp"}</p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Image Viewer Dialog */}
-      <Dialog open={showImageViewer} onOpenChange={setShowImageViewer}>
-        <DialogContent className="bg-[#222e35] text-[#e9edef] border-none max-w-[95vw] sm:max-w-[90vw] h-[90vh] p-0">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-4 bg-[#202c33]">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => setShowImageViewer(false)}
-              >
-                <X className="h-5 w-5 text-[#aebac1]" />
-              </Button>
-              <div className="flex gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleZoomIn}
-                >
-                  <ZoomIn className="h-5 w-5 text-[#aebac1]" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleZoomOut}
-                >
-                  <ZoomOut className="h-5 w-5 text-[#aebac1]" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleRotate}
-                >
-                  <RotateCw className="h-5 w-5 text-[#aebac1]" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => window.open(selectedImage!, '_blank')}
-                >
-                  <Share2 className="h-5 w-5 text-[#aebac1]" />
-                </Button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-auto flex items-center justify-center bg-[#111b21] p-4">
-              {selectedImage && (
-                <div
-                  className="relative w-full h-full flex items-center justify-center"
-                  style={{
-                    transform: `scale(${imageScale}) rotate(${rotation}deg)`,
-                    transition: 'transform 0.3s ease'
-                  }}
-                >
-                  <Image
-                    src={selectedImage}
-                    alt="Full size"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              )}
+              <p className="text-sm sm:text-base text-[#e9edef]">{adminData.about}</p>
             </div>
           </div>
         </DialogContent>

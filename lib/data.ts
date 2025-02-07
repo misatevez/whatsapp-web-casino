@@ -1,3 +1,10 @@
+export const adminProfile = {
+  name: "WhatsApp Support",
+  avatar: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg",
+  about: "Official WhatsApp Support",
+  online: true
+};
+
 export interface Message {
   id: number;
   content: string;
